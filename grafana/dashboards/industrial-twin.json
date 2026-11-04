@@ -1,0 +1,12 @@
+{
+  "uid": "industrial-twin", "title": "Industrial Digital Twin — Machine 01", "schemaVersion": 39,
+  "tags": ["iot", "digital-twin"], "timezone": "browser", "refresh": "5s",
+  "time": {"from": "now-15m", "to": "now"},
+  "panels": [
+    {"id": 1, "type": "timeseries", "title": "Temperature (°C)", "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8}, "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"expr": "twin_temperature_celsius", "refId": "A"}], "fieldConfig": {"defaults": {"unit": "celsius"}, "overrides": []}},
+    {"id": 2, "type": "timeseries", "title": "Anomaly score", "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8}, "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"expr": "twin_anomaly_score", "refId": "A"}], "fieldConfig": {"defaults": {"unit": "short", "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 2.5}, {"color": "red", "value": 4}]}}, "overrides": []}},
+    {"id": 3, "type": "stat", "title": "Machine connected", "gridPos": {"x": 0, "y": 8, "w": 8, "h": 5}, "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"expr": "twin_connected", "refId": "A"}]},
+    {"id": 4, "type": "stat", "title": "Warning / Fault", "gridPos": {"x": 8, "y": 8, "w": 8, "h": 5}, "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"expr": "twin_warning", "refId": "A"}]},
+    {"id": 5, "type": "timeseries", "title": "Vibration (mm/s)", "gridPos": {"x": 16, "y": 8, "w": 8, "h": 5}, "datasource": {"type": "prometheus", "uid": "prometheus"}, "targets": [{"expr": "twin_vibration_mm_per_second", "refId": "A"}]}
+  ]
+}

@@ -1,0 +1,144 @@
+# Local kind demo. This is not production-ready: Redis and MQTT are ephemeral.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: twin-mosquitto-conf
+data:
+  mosquitto.conf: |
+    listener 1883 0.0.0.0
+    allow_anonymous true
+    persistence false
+    log_dest stdout
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mosquitto
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: mosquitto}}
+  template:
+    metadata: {labels: {app: mosquitto}}
+    spec:
+      containers:
+        - name: broker
+          image: eclipse-mosquitto:2
+          ports: [{containerPort: 1883}]
+          volumeMounts: [{name: config, mountPath: /mosquitto/config/mosquitto.conf, subPath: mosquitto.conf}]
+          resources:
+            requests: {cpu: 20m, memory: 32Mi}
+            limits: {memory: 128Mi}
+      volumes:
+        - name: config
+          configMap: {name: twin-mosquitto-conf}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: mosquitto}
+spec:
+  selector: {app: mosquitto}
+  ports: [{port: 1883, targetPort: 1883}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: redis}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: redis}}
+  template:
+    metadata: {labels: {app: redis}}
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports: [{containerPort: 6379}]
+          resources:
+            requests: {cpu: 20m, memory: 32Mi}
+            limits: {memory: 128Mi}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: redis}
+spec:
+  selector: {app: redis}
+  ports: [{port: 6379, targetPort: 6379}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: twin-consumer}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: twin-consumer}}
+  template:
+    metadata: {labels: {app: twin-consumer}}
+    spec:
+      containers:
+        - name: consumer
+          image: industrial-twin:local
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "worker.consumer"]
+          env: &commonEnv
+            - {name: MQTT_HOST, value: mosquitto}
+            - {name: REDIS_URL, value: "redis://redis:6379/0"}
+            - {name: MACHINE_ID, value: machine01}
+          resources:
+            requests: {cpu: 25m, memory: 64Mi}
+            limits: {memory: 192Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: twin-simulator}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: twin-simulator}}
+  template:
+    metadata: {labels: {app: twin-simulator}}
+    spec:
+      containers:
+        - name: simulator
+          image: industrial-twin:local
+          imagePullPolicy: IfNotPresent
+          command: ["python", "-m", "simulator.publisher"]
+          env:
+            - {name: MQTT_HOST, value: mosquitto}
+            - {name: MACHINE_ID, value: machine01}
+            - {name: SCENARIO, value: degrading}
+          resources:
+            requests: {cpu: 25m, memory: 64Mi}
+            limits: {memory: 192Mi}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: twin-api}
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: twin-api}}
+  template:
+    metadata: {labels: {app: twin-api}}
+    spec:
+      containers:
+        - name: api
+          image: industrial-twin:local
+          imagePullPolicy: IfNotPresent
+          ports: [{containerPort: 8000}]
+          env:
+            - {name: REDIS_URL, value: "redis://redis:6379/0"}
+            - {name: MACHINE_ID, value: machine01}
+          readinessProbe:
+            httpGet: {path: /ready, port: 8000}
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: {path: /health, port: 8000}
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 50m, memory: 80Mi}
+            limits: {memory: 256Mi}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: twin-api}
+spec:
+  selector: {app: twin-api}
+  ports: [{port: 8000, targetPort: 8000}]

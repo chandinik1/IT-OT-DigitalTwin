@@ -1,0 +1,9 @@
+apiVersion: 1
+providers:
+  - name: Industrial Twin
+    orgId: 1
+    folder: Industrial Twin
+    type: file
+    disableDeletion: true
+    options:
+      path: /var/lib/grafana/dashboards

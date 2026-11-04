@@ -4,6 +4,15 @@ A small local project that simulates one industrial machine. It sends temperatur
 
 > **One-line demo:** A healthy machine gradually heats up and vibrates more; its digital twin changes from `HEALTHY` to `WARNING` to `FAULT` and exposes the reason via an API.
 
+## See it in Grafana
+
+The dashboard makes the change from a healthy machine to a fault immediately visible.
+
+| Healthy machine | Degrading machine |
+|---|---|
+| Temperature and vibration stay near their baseline. **Warning / Fault = 0**. | Temperature, vibration, and anomaly score rise. **Warning / Fault = 1**. |
+| ![Grafana dashboard showing a healthy machine](docs/images/grafana-healthy-machine.png) | ![Grafana dashboard showing a degrading machine](docs/images/grafana-degrading-machine.png) |
+
 ## Architecture
 
 ```text
@@ -108,18 +117,6 @@ docker compose --profile observability up -d prometheus grafana
 - Prometheus: **http://localhost:9090**
 - Grafana dashboard is pre-provisioned under the **Industrial Twin** folder.
 - Prometheus scrapes the FastAPI `/metrics` endpoint every three seconds.
-
-### Before: healthy machine
-
-Temperature stays near 64°C, vibration stays near 2 mm/s, and **Warning / Fault** is `0`.
-
-![Grafana dashboard showing a healthy machine](docs/images/grafana-healthy-machine.png)
-
-### After: degrading machine
-
-Temperature, vibration, and the anomaly score rise. **Warning / Fault** changes to `1`.
-
-![Grafana dashboard showing a degrading machine](docs/images/grafana-degrading-machine.png)
 
 Grafana is optional; the complete digital twin works without it. Credentials and unauthenticated MQTT in this demo are not suitable for a public or real OT deployment.
 
