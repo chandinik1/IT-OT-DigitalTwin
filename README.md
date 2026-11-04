@@ -1,4 +1,4 @@
-# Smart Industrial Digital Twin — One Machine
+# Smart Industrial Digital Twin 
 
 A small local project that simulates one industrial machine. It sends temperature and vibration readings through MQTT, calculates machine health, stores the latest digital-twin state, and displays it through an API and Grafana.
 
