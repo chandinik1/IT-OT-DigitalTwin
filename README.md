@@ -34,6 +34,12 @@ Redis (latest machine twin, baseline, last 60 samples, event count)
 Docker Compose first → local Kubernetes using kind second
 ```
 
+### Docker services in action
+
+The simulator publishes readings while the consumer receives, analyzes, and stores the latest machine state.
+
+![Docker services running the simulator, MQTT consumer, Mosquitto, and Redis](docs/images/docker-services-running.png)
+
 ## Prerequisites
 
 - Docker Desktop (or Docker Engine + Compose plugin)
