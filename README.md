@@ -2,7 +2,7 @@
 
 A small local project that simulates one industrial machine. It sends temperature and vibration readings through MQTT, calculates machine health, stores the latest digital-twin state, and displays it through an API and Grafana.
 
-> **One-line demo:** A healthy machine gradually heats up and vibrates more; its digital twin changes from `HEALTHY` to `WARNING` to `FAULT` and exposes the reason via an API.
+> A healthy machine gradually heats up and vibrates more; its digital twin changes from `HEALTHY` to `WARNING` to `FAULT` and exposes the reason via an API.
 
 ## See it in Grafana
 
@@ -212,12 +212,3 @@ prometheus/    Optional Prometheus scraping config
 k8s/          Minimal local Kubernetes manifests
 docs/         Architecture and demo walkthrough
 ```
-
-## Portfolio talking points
-
-- **Backend:** Decoupled MQTT publisher/consumer and REST API, validated Pydantic schemas, Redis shared live state.
-- **IT/OT solution design:** A simulated OT producer talks to an IT digital twin over publish/subscribe, not direct HTTP.
-- **Data/AI:** Explainable online anomaly scoring, calibrated baseline, scenario-driven validation.
-- **Platform:** Reproducible Docker Compose stack and local Kubernetes deployment.
-
-Do not claim industrial-grade failure prediction, production-scale Kubernetes, or deployment to a real factory. This is a deliberately scoped personal portfolio project.
